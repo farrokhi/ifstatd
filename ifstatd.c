@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
+#include <sys/file.h>
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/if_var.h>
@@ -61,7 +62,7 @@ struct iftot {
 };
 
 // Globals
-char *interface="en1";
+char *interface="bge1";
 char* pid_filename;
 char* cache_filename;
 
@@ -116,36 +117,92 @@ int config(char *iface)
 		"update_rate 10\n"
 		"graph_data_size custom 1d, 10s for 1w, 1m for 1t, 5m for 1y\n"
 		"rbytes.label received"
-        "rbytes.type DERIVE"
-        "rbytes.graph no"
-        "rbytes.cdef rbytes,8,*"
-        "rbytes.min 0"
-        "obytes.label bps"
-        "obytes.type DERIVE"
-        "obytes.negative rbytes"
-        "obytes.cdef obytes,8,*"
-        "obytes.min 0"
-        "obytes.draw AREA"
-        ,iface
+		"rbytes.type DERIVE"
+		"rbytes.graph no"
+		"rbytes.cdef rbytes,8,*"
+		"rbytes.min 0"
+		"obytes.label bps"
+		"obytes.type DERIVE"
+		"obytes.negative rbytes"
+		"obytes.cdef obytes,8,*"
+		"obytes.min 0"
+		"obytes.draw AREA"
+		,iface
 	);
 
 	return(0);
 }
 
+time_t wait_for(int seconds) {
+	struct timespec tp;
+	clock_gettime(CLOCK_REALTIME, &tp);
+
+	time_t current_epoch = tp.tv_sec;
+	long nsec_to_sleep = (1000*1000*1000 - tp.tv_nsec) * seconds;
+
+
+	/* Only sleep if needed */
+	if (nsec_to_sleep > 0) {
+		tp.tv_sec = 0;
+		tp.tv_nsec = nsec_to_sleep;
+		nanosleep(&tp, NULL);
+	}
+
+	return current_epoch + seconds;
+}
+
 int acquire()
 {
+	struct iftot ift, *tot;
+	time_t epoch;
+
+	tot = &ift;
+
+	/* fork ourselves if not asked otherwise */
+//	char* no_fork = getenv("no_fork");
+//	if (! no_fork || strcmp("1", no_fork)) {
+//		if (fork()) return(0);
+		/* we are the child, complete the daemonization */
+
+		/* Close standard IO */
+//		fclose(stdin);
+//		fclose(stdout);
+//		fclose(stderr);
+
+		/* create new session and process group */
+//		setsid();
+//	}
+
+	/* persist pid */
+	FILE* pid_file = fopen(pid_filename, "w");
+	fprintf(pid_file, "%d\n", getpid());
+	fclose(pid_file);
+
+	FILE* cache_file = fopen(cache_filename, "a");
+
+
+	/* looping to collect traffic stat every 10 seconds */
+	
+	while(1) {
+
+		epoch=wait_for(10);
+
+		flock(fileno(cache_file), LOCK_EX);
+
+		fill_iftot(tot);
+		fprintf(cache_file, "obytes.value %ld:%lu\nrbytes.value %ld:%lu\n", epoch, tot->ift_ob, epoch, tot->ift_ib);
+		fflush(cache_file);
+
+		flock(fileno(cache_file), LOCK_UN);
+	}	
+
+	fclose(cache_file);
 	return(0);
 }
 
 int fetch()
 {
-	struct iftot ift, *tot;
-
-	tot = &ift;
-
-	fill_iftot(tot);
-	fprintf(stdout, "%s\tibytes: %lu\tobytes: %lu\n", interface, tot->ift_ib, tot->ift_ob);
-	fflush(stdout);
+	/* this should return data from cache file */
 
  	return(0);
 }
@@ -153,7 +210,7 @@ int fetch()
 int 
 main(int argc, char* argv[]) 
 {
-		/* resolve paths */
+	/* resolve paths */
 	char *MUNIN_PLUGSTATE = getenv("MUNIN_PLUGSTATE");
 
 	/* Default is current directory */
