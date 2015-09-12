@@ -109,12 +109,24 @@ fill_iftot(struct iftot *st)
 int config(char *iface)
 {
 	printf(
-		"graph_title HighRes Interface Traffic Stat\n"
+        "graph_order rbytes obytes"
+		"graph_title %s Interface (HighRes)\n"
 		"graph_category network::10sec\n"
-		"graph_vlabel Traffic\n"
+		"graph_vlabel bits per second\n"
 		"update_rate 10\n"
 		"graph_data_size custom 1d, 10s for 1w, 1m for 1t, 5m for 1y\n"
-		""
+		"rbytes.label received"
+        "rbytes.type DERIVE"
+        "rbytes.graph no"
+        "rbytes.cdef rbytes,8,*"
+        "rbytes.min 0"
+        "obytes.label bps"
+        "obytes.type DERIVE"
+        "obytes.negative rbytes"
+        "obytes.cdef obytes,8,*"
+        "obytes.min 0"
+        "obytes.draw AREA"
+        ,iface
 	);
 
 	return(0);
@@ -161,7 +173,7 @@ main(int argc, char* argv[])
 	if (argc > 1) {
 		char* first_arg = argv[1];
 		if (! strcmp(first_arg, "config")) {
-			return config();
+			return config(interface);
 		}
 
 		if (! strcmp(first_arg, "acquire")) {
