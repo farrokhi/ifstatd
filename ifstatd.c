@@ -62,7 +62,8 @@ struct iftot {
 };
 
 // Globals
-char *interface="bge1";
+char *program_name = "ifstatd_";
+char *interface="em0";
 char* pid_filename;
 char* cache_filename;
 
@@ -110,23 +111,23 @@ fill_iftot(struct iftot *st)
 int config(char *iface)
 {
 	printf(
-        "graph_order rbytes obytes"
+        "graph_order rbytes obytes\n"
 		"graph_title %s Interface (HighRes)\n"
-		"graph_category network::10sec\n"
+		"graph_category network\n"
 		"graph_vlabel bits per second\n"
-		"update_rate 10\n"
-		"graph_data_size custom 1d, 10s for 1w, 1m for 1t, 5m for 1y\n"
-		"rbytes.label received"
-		"rbytes.type DERIVE"
-		"rbytes.graph no"
-		"rbytes.cdef rbytes,8,*"
-		"rbytes.min 0"
-		"obytes.label bps"
-		"obytes.type DERIVE"
-		"obytes.negative rbytes"
-		"obytes.cdef obytes,8,*"
-		"obytes.min 0"
-		"obytes.draw AREA"
+		"update_rate 5\n"
+		"graph_data_size custom 1d, 5s for 1w, 1m for 1t, 5m for 1y\n"
+		"rbytes.label received\n"
+		"rbytes.type DERIVE\n"
+		"rbytes.graph no\n"
+		"rbytes.cdef rbytes,8,*\n"
+		"rbytes.min 0\n"
+		"obytes.label bps\n"
+		"obytes.type DERIVE\n"
+		"obytes.negative rbytes\n"
+		"obytes.cdef obytes,8,*\n"
+		"obytes.min 0\n"
+		"obytes.draw AREA\n"
 		,iface
 	);
 
@@ -159,19 +160,19 @@ int acquire()
 	tot = &ift;
 
 	/* fork ourselves if not asked otherwise */
-//	char* no_fork = getenv("no_fork");
-//	if (! no_fork || strcmp("1", no_fork)) {
-//		if (fork()) return(0);
+	char* no_fork = getenv("no_fork");
+	if (! no_fork || strcmp("1", no_fork)) {
+		if (fork()) return(0);
 		/* we are the child, complete the daemonization */
 
 		/* Close standard IO */
-//		fclose(stdin);
-//		fclose(stdout);
-//		fclose(stderr);
+		fclose(stdin);
+		fclose(stdout);
+		fclose(stderr);
 
 		/* create new session and process group */
-//		setsid();
-//	}
+		setsid();
+	}
 
 	/* persist pid */
 	FILE* pid_file = fopen(pid_filename, "w");
@@ -181,11 +182,11 @@ int acquire()
 	FILE* cache_file = fopen(cache_filename, "a");
 
 
-	/* looping to collect traffic stat every 10 seconds */
+	/* looping to collect traffic stat every 5 seconds */
 	
 	while(1) {
 
-		epoch=wait_for(10);
+		epoch=wait_for(5);
 
 		flock(fileno(cache_file), LOCK_EX);
 
@@ -203,6 +204,19 @@ int acquire()
 int fetch()
 {
 	/* this should return data from cache file */
+	FILE* cache_file = fopen(cache_filename, "r+");
+
+	/* lock */
+	flock(fileno(cache_file), LOCK_EX);
+
+	/* cat the cache_file to stdout */
+	char buffer[1024];
+	while (fgets(buffer, 1024, cache_file)) {
+		printf("%s", buffer);
+	}
+
+	ftruncate(fileno(cache_file), 0);
+	fclose(cache_file);
 
  	return(0);
 }
@@ -210,6 +224,26 @@ int fetch()
 int 
 main(int argc, char* argv[]) 
 {
+	if (argv[0] && argv[0][0])
+		program_name = argv[0];
+
+	/* figure out program name */
+	while (strchr(program_name, '/')) {
+		program_name=strchr(program_name, '/')+1;
+	}
+	
+	/* extract interface name from plugin name */
+	if (strchr(program_name,'_')) {
+		interface=strchr(program_name,'_')+1;
+	}
+
+	/* program should always run with a valid
+		executable name */
+	if (! interface) {
+		printf("please run from symlink\n");
+		exit(0);
+	}
+
 	/* resolve paths */
 	char *MUNIN_PLUGSTATE = getenv("MUNIN_PLUGSTATE");
 
