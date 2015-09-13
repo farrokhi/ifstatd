@@ -113,7 +113,7 @@ int config(char *iface)
 {
 	printf(
         "graph_order rbytes obytes\n"
-		"graph_title %s Interface (HighRes)\n"
+		"graph_title %s Interface (%d seconds sampling)\n"
 		"graph_category network\n"
 		"graph_vlabel bits per second\n"
 		"update_rate %d\n"
@@ -129,7 +129,7 @@ int config(char *iface)
 		"obytes.cdef obytes,8,*\n"
 		"obytes.min 0\n"
 		"obytes.draw AREA\n"
-		,iface,RESOLUTION,RESOLUTION
+		,iface,RESOLUTION,RESOLUTION,RESOLUTION
 	);
 
 	return(0);
