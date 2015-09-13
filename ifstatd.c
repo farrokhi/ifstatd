@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 #define IFA_STAT(s)     (((struct if_data *)ifa->ifa_data)->ifi_ ## s)
+#define RESOLUTION	10
 
 struct iftot {
         u_long  ift_ip;                 /* input packets */
@@ -63,7 +64,7 @@ struct iftot {
 
 // Globals
 char *program_name = "ifstatd_";
-char *interface="em0";
+char *interface;
 char* pid_filename;
 char* cache_filename;
 
@@ -115,8 +116,8 @@ int config(char *iface)
 		"graph_title %s Interface (HighRes)\n"
 		"graph_category network\n"
 		"graph_vlabel bits per second\n"
-		"update_rate 5\n"
-		"graph_data_size custom 1d, 5s for 1w, 1m for 1t, 5m for 1y\n"
+		"update_rate %d\n"
+		"graph_data_size custom 1d, %ds for 1w, 1m for 1t, 5m for 1y\n"
 		"rbytes.label received\n"
 		"rbytes.type DERIVE\n"
 		"rbytes.graph no\n"
@@ -128,7 +129,7 @@ int config(char *iface)
 		"obytes.cdef obytes,8,*\n"
 		"obytes.min 0\n"
 		"obytes.draw AREA\n"
-		,iface
+		,iface,RESOLUTION,RESOLUTION
 	);
 
 	return(0);
@@ -182,11 +183,11 @@ int acquire()
 	FILE* cache_file = fopen(cache_filename, "a");
 
 
-	/* looping to collect traffic stat every 5 seconds */
+	/* looping to collect traffic stat every RESOLUTION seconds */
 	
 	while(1) {
 
-		epoch=wait_for(5);
+		epoch=wait_for(RESOLUTION);
 
 		flock(fileno(cache_file), LOCK_EX);
 
@@ -239,7 +240,7 @@ main(int argc, char* argv[])
 
 	/* program should always run with a valid
 		executable name */
-	if (! interface) {
+	if (strlen(interface) < 1) {
 		printf("please run from symlink\n");
 		exit(0);
 	}
