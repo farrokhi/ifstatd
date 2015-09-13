@@ -7,8 +7,8 @@ CC?=cc
 all: ifstatd
 
 ifstatd: ifstatd.c Makefile 
-	$(CC) $(FLAGS) $(INC) $(LIB) ifstatd.c -o ifstatd
+	$(CC) $(FLAGS) $(INC) $(LIB) ifstatd.c -o ifstatd_
 
 clean:
-	rm -f ifstatd
+	rm -f ifstatd_
 
