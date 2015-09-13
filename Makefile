@@ -4,9 +4,9 @@ LIB=-L$(PREFIX)/lib
 FLAGS=-O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
 CC?=cc
 
-all: ifstatd
+all: ifstatd_
 
-ifstatd: ifstatd.c Makefile 
+ifstatd_: ifstatd.c Makefile 
 	$(CC) $(FLAGS) $(INC) $(LIB) ifstatd.c -o ifstatd_
 
 clean:
