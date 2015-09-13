@@ -134,16 +134,16 @@ int config(char *iface)
 }
 
 time_t wait_for(int seconds) {
+
 	struct timespec tp;
 	clock_gettime(CLOCK_REALTIME, &tp);
 
 	time_t current_epoch = tp.tv_sec;
-	long nsec_to_sleep = (1000*1000*1000 - tp.tv_nsec) * seconds;
-
+	long nsec_to_sleep = 1000*1000*1000 - tp.tv_nsec;
 
 	/* Only sleep if needed */
 	if (nsec_to_sleep > 0) {
-		tp.tv_sec = 0;
+		tp.tv_sec = seconds - 1;
 		tp.tv_nsec = nsec_to_sleep;
 		nanosleep(&tp, NULL);
 	}
