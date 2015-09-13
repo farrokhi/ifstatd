@@ -62,11 +62,11 @@ struct iftot {
         u_long  ift_ob;                 /* output bytes */
 };
 
-// Globals
+/* Globals */
 char *program_name = "ifstatd_";
 char *interface;
-char* pid_filename;
-char* cache_filename;
+char *pid_filename;
+char *cache_filename;
 
 /*
  * Obtain stats for interface(s).
@@ -93,14 +93,14 @@ fill_iftot(struct iftot *st)
                 }
                 
                 st->ift_ip += IFA_STAT(ipackets);
-                st->ift_ie += IFA_STAT(ierrors);
-                // st->ift_id += IFA_STAT(iqdrops);
+                /*st->ift_ie += IFA_STAT(ierrors);*/
+                /*st->ift_id += IFA_STAT(iqdrops);*/
                 st->ift_ib += IFA_STAT(ibytes);
                 st->ift_op += IFA_STAT(opackets);
-                st->ift_oe += IFA_STAT(oerrors);
-                // st->ift_od += IFA_STAT(oqdrops);
+                /*st->ift_oe += IFA_STAT(oerrors);*/
+                /* st->ift_od += IFA_STAT(oqdrops);*/
                 st->ift_ob += IFA_STAT(obytes);
-                st->ift_co += IFA_STAT(collisions);
+                /*st->ift_co += IFA_STAT(collisions);*/
         }
 
         if (interface && found == false)
@@ -176,11 +176,11 @@ int acquire()
 	}
 
 	/* persist pid */
-	FILE* pid_file = fopen(pid_filename, "w");
+	FILE *pid_file = fopen(pid_filename, "w");
 	fprintf(pid_file, "%d\n", getpid());
 	fclose(pid_file);
 
-	FILE* cache_file = fopen(cache_filename, "a");
+	FILE *cache_file = fopen(cache_filename, "a");
 
 
 	/* looping to collect traffic stat every RESOLUTION seconds */
@@ -241,26 +241,17 @@ main(int argc, char* argv[])
 	/* program should always run with a valid
 		executable name */
 	if (strlen(interface) < 1) {
-		printf("please run from symlink\n");
-		exit(0);
+		errx(EX_USAGE, "Please run from symlink");
 	}
 
 	/* resolve paths */
 	char *MUNIN_PLUGSTATE = getenv("MUNIN_PLUGSTATE");
 
 	/* Default is current directory */
-	if (! MUNIN_PLUGSTATE) MUNIN_PLUGSTATE = ".";
+	if (!MUNIN_PLUGSTATE) MUNIN_PLUGSTATE = ".";
 
-	size_t MUNIN_PLUGSTATE_length = strlen(MUNIN_PLUGSTATE);
-
-	pid_filename = malloc(MUNIN_PLUGSTATE_length + strlen("/ifstatd.") + strlen("pid") + 1); pid_filename[0] = '\0';
-	cache_filename = malloc(MUNIN_PLUGSTATE_length + strlen("/ifstatd.") + strlen("value") + 1); cache_filename[0] = '\0';
-
-	strcat(pid_filename, MUNIN_PLUGSTATE);
-	strcat(pid_filename, "/ifstatd.pid");
-
-	strcat(cache_filename, MUNIN_PLUGSTATE);
-	strcat(cache_filename, "/ifstatd.value");
+	asprintf(&pid_filename,   "%s/%s.pid",   MUNIN_PLUGSTATE, program_name);
+	asprintf(&cache_filename, "%s/%s.value", MUNIN_PLUGSTATE, program_name);
 
 	if (argc > 1) {
 		char* first_arg = argv[1];
