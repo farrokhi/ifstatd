@@ -7,10 +7,31 @@ interface statistics plugin for munin with supersampling capability
 
 ## Installation
 1. Clone this repo and build using `make`
-2. Copy `ifstatd_` binary to munin plugins directory 
-	(e.g. `cp ifstatd_
-/usr/local/share/munin/plugins/`)
-3. Make necessary links to active plugins directory 
-	(e.g. `ln -s /usr/local/share/munin/ifstatd_
-	/usr/local/etc/munin/plugins/ifstatd_em0`)
-4. Restart munin-agent	
+2. Copy `ifstatd_` binary to munin plugins directory:
+
+	```
+	cp ifstatd_ /usr/local/share/munin/plugins/
+	```
+3. Make necessary links to active plugins directory :
+
+	```
+	ln -s /usr/local/share/munin/ifstatd _/usr/local/etc/munin/plugins/ifstatd_em0
+	```
+4. Make sure plugin is run as `root` by adding these lines to munin
+`plugins.conf`:
+
+	```
+	[ifstatd_*]
+	user root
+	```
+5. Start `ifstatd_` as daemon:
+
+	```
+	munin-run ifstatd_em0 acquire
+	```
+6. Restart `munin-node` service:
+
+	```
+	service munin-node restart
+	```
+
