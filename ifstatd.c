@@ -73,7 +73,7 @@ struct pidfh *pfh;
 /*
  * Prepare for a clean shutdown
  */
-void 
+void
 daemon_shutdown()
 {
 	pidfile_remove(pfh);
@@ -82,7 +82,7 @@ daemon_shutdown()
 /*
  * Act upon receiving signals
  */
-void 
+void
 signal_handler(int sig)
 {
 	switch (sig) {
@@ -101,7 +101,7 @@ signal_handler(int sig)
 /*
  * Obtain stats for interface(s).
  */
-static void 
+static void
 fill_iftot(struct iftot *st)
 {
 	struct ifaddrs *ifap, *ifa;
@@ -136,7 +136,7 @@ fill_iftot(struct iftot *st)
 /*
  * Print out munin plugin configuration
  */
-int 
+int
 config(char *iface)
 {
 	printf(
@@ -166,7 +166,7 @@ config(char *iface)
 /*
  * Wait for a certain amount of time
  */
-time_t 
+time_t
 wait_for(int seconds)
 {
 
@@ -189,7 +189,7 @@ wait_for(int seconds)
 /*
  * Daemonize and persist pid
  */
-int 
+int
 daemon_start()
 {
 	struct iftot ift, *tot;
@@ -197,6 +197,7 @@ daemon_start()
 	struct sigaction sig_action;
 	sigset_t sig_set;
 	pid_t otherpid;
+	int curPID;
 
 	tot = &ift;
 
@@ -218,10 +219,18 @@ daemon_start()
 			}
 			warn("Cannot open or create pidfile: %s", pid_filename);
 		}
-		/* fork ourselves if not asked otherwise */
-		if (fork()) {
+		/* start daemonizing */
+		curPID = fork();
+
+		switch (curPID) {
+		case 0:		/* This process is the child */
+			break;
+		case -1:		/* fork() failed, should exit */
+			return (EXIT_FAILURE);
+		default:		/* fork() successful, should exit */
 			return (EXIT_SUCCESS);
 		}
+
 		/* we are the child, complete the daemonization */
 
 		/* Close standard IO */
@@ -250,7 +259,8 @@ daemon_start()
 		sigaction(SIGINT, &sig_action, NULL);
 
 		/* create new session and process group */
-		setsid();
+		if (setsid() < 0)
+			return (EXIT_FAILURE);
 
 		/* persist pid */
 		pidfile_write(pfh);
@@ -276,7 +286,7 @@ daemon_start()
 	return (0);
 }
 
-int 
+int
 fetch()
 {
 	/* this should return data from cache file */
@@ -298,7 +308,7 @@ fetch()
 	return (0);
 }
 
-int 
+int
 main(int argc, char *argv[])
 {
 	if (argv[0] && argv[0][0])
