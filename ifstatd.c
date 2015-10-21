@@ -46,7 +46,13 @@
 #include <string.h>
 #include <sysexits.h>
 #include <unistd.h>
-#include <libutil.h>
+#include <time.h>
+#include <pidutil.h>
+
+#ifdef __MACH__
+#include <sys/time.h>
+#define CLOCK_REALTIME 0
+#endif
 
 #define IFA_STAT(s)     (((struct if_data *)ifa->ifa_data)->ifi_ ## s)
 #define RESOLUTION	10
@@ -69,6 +75,23 @@ char   *interface;
 char   *pid_filename;
 char   *cache_filename;
 struct pidfh *pfh;
+
+#ifdef __MACH__
+/* clock_gettime is not implemented on OSX */
+int 
+clock_gettime(int clk_id, struct timespec *t)
+{
+	struct timeval now;
+	int rv = gettimeofday(&now, NULL);
+
+	if (rv)
+		return rv;
+	t->tv_sec = now.tv_sec;
+	t->tv_nsec = now.tv_usec * 1000;
+	return 0;
+}
+
+#endif
 
 /*
  * Prepare for a clean shutdown

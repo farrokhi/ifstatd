@@ -1,7 +1,7 @@
-PREFIX=/usr/local
+PREFIX?=/usr/local
 INC=-I$(PREFIX)/include
-LIB=-L$(PREFIX)/lib  -lutil
-FLAGS=-Wall -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
+LIB=-L$(PREFIX)/lib  -lpidutil
+FLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
 CC?=cc
 
 all: ifstatd_
