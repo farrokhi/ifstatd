@@ -1,11 +1,9 @@
 # ifstatd_ plugin
-[![Issues](https://img.shields.io/github/issues/farrokhi/ifstatd.svg)](https://github.com/farrokhi/ifstatd/issues)
-[![Coverity Scan](https://img.shields.io/coverity/scan/6341.svg)](https://scan.coverity.com/projects/farrokhi-ifstatd)
-[![GitHub License](https://img.shields.io/github/license/farrokhi/ifstatd.svg)](https://github.com/farrokhi/ifstatd/blob/master/LICENSE)
 
 Interface statistics plugin for munin with [supersampling](http://guide.munin-monitoring.org/en/latest/plugin/supersampling.html) capability
 
 NOTE: This plugin builds on FreeBSD and Darwin, but not tested on other paltforms.
+
 NOTE: This program depends on [libpidutil](https://github.com/farrokhi/libpidutil)
 
 ## Installation
