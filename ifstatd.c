@@ -195,6 +195,8 @@ wait_for(int seconds)
 
 	struct timespec tp;
 
+	bzero(&tp, sizeof(tp));
+
 	clock_gettime(CLOCK_REALTIME, &tp);
 
 	time_t current_epoch = tp.tv_sec;
