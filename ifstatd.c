@@ -34,7 +34,8 @@
 #include <ifaddrs.h>
 
 #ifdef __linux__
-#    define AF_LINK AF_PACKET
+#define AF_LINK AF_PACKET
+#define _GNU_SOURCE
 #else
 #include <net/if_var.h>
 #include <net/if_types.h>
