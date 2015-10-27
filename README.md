@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/farrokhi/ifstatd.svg)](https://travis-ci.org/farrokhi/ifstatd)
+
 # ifstatd_ plugin
 
 Interface statistics plugin for munin with [supersampling](http://guide.munin-monitoring.org/en/latest/plugin/supersampling.html) capability
