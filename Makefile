@@ -1,14 +1,22 @@
-PREFIX?=/usr/local
-INC=-I$(PREFIX)/include
-LIB=-L$(PREFIX)/lib  -lpidutil
-FLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
 CC?=cc
+PREFIX?=/usr/local
+CPPFLAGS=-I$(PREFIX)/include
+LDFLAGS=-L$(PREFIX)/lib  
+LDLIBS=-lpidutil
+FLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
 
-all: ifstatd_
+.PHONY: libpidutil get-deps
 
-ifstatd_: ifstatd.c Makefile 
-	$(CC) $(FLAGS) $(INC) $(LIB) ifstatd.c -o ifstatd_
+all: get-deps libpidutil ifstatd_
+
+ifstatd_: ifstatd.o
+
+get-deps:
+	git submodule update --init
+
+libpidutil:
+	$(MAKE) -C libpidutil all
 
 clean:
-	rm -f ifstatd_
-
+	rm -f *.BAK *.log *.o *.a core ifstatd_
+	$(MAKE) -C libpidutil clean
