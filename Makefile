@@ -3,7 +3,8 @@ PREFIX?=/usr/local
 CPPFLAGS=-I$(PREFIX)/include -I./libpidutil
 LDFLAGS=-L$(PREFIX)/lib -L./libpidutil
 LDLIBS=-lpidutil
-FLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
+CFLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
+CFLAGS+=$(CPPFLAGS)
 
 .PHONY: libpidutil get-deps
 
