@@ -4,8 +4,6 @@
 
 Interface statistics plugin for munin with [supersampling](http://guide.munin-monitoring.org/en/latest/plugin/supersampling.html) capability
 
-NOTE: This plugin builds on FreeBSD and Darwin, but not tested on other paltforms.
-
 NOTE: This program depends on [libpidutil](https://github.com/farrokhi/libpidutil)
 
 ## Installation
@@ -37,4 +35,8 @@ NOTE: This program depends on [libpidutil](https://github.com/farrokhi/libpiduti
 	```
 	service munin-node restart
 	```
+
+## Compatibility
+
+This plugin builds on FreeBSD, Darwin and Linux, and is tested on FreeBSD. Your milage may vary. Pleare report if build on other operating systems are broken or does not work as expected.
 
