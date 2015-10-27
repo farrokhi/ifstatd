@@ -1,7 +1,7 @@
 CC?=cc
 PREFIX?=/usr/local
-CPPFLAGS=-I$(PREFIX)/include
-LDFLAGS=-L$(PREFIX)/lib  
+CPPFLAGS=-I$(PREFIX)/include -I./libpidutil
+LDFLAGS=-L$(PREFIX)/lib -L./libpidutil
 LDLIBS=-lpidutil
 FLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
 

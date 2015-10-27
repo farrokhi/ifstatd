@@ -31,9 +31,14 @@
 #include <sys/file.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#include <ifaddrs.h>
+
+#ifdef __linux__
+#    define AF_LINK AF_PACKET
+#else
 #include <net/if_var.h>
 #include <net/if_types.h>
-#include <ifaddrs.h>
+#endif
 
 #include <err.h>
 #include <errno.h>
@@ -53,6 +58,45 @@
 #include <sys/time.h>
 #define CLOCK_REALTIME 0
 #endif
+
+#ifdef __linux__
+/*
+ *  * Structure describing information about an interface
+ *   * which may be of interest to management entities.
+ *    */
+struct if_data {
+        /* generic interface information */
+        u_char  ifi_type;               /* ethernet, tokenring, etc */
+        u_char  ifi_physical;           /* e.g., AUI, Thinnet, 10base-T, etc */
+        u_char  ifi_addrlen;            /* media address length */
+        u_char  ifi_hdrlen;             /* media header length */
+        u_char  ifi_link_state;         /* current link state */
+        u_char  ifi_vhid;               /* carp vhid */
+        u_char  ifi_baudrate_pf;        /* baudrate power factor */
+        u_char  ifi_datalen;            /* length of this data struct */
+        u_long  ifi_mtu;                /* maximum transmission unit */
+        u_long  ifi_metric;             /* routing metric (external only) */
+        u_long  ifi_baudrate;           /* linespeed */
+        /* volatile statistics */
+        u_long  ifi_ipackets;           /* packets received on interface */
+        u_long  ifi_ierrors;            /* input errors on interface */
+        u_long  ifi_opackets;           /* packets sent on interface */
+        u_long  ifi_oerrors;            /* output errors on interface */
+        u_long  ifi_collisions;         /* collisions on csma interfaces */
+        u_long  ifi_ibytes;             /* total number of octets received */
+        u_long  ifi_obytes;             /* total number of octets sent */
+        u_long  ifi_imcasts;            /* packets received via multicast */
+        u_long  ifi_omcasts;            /* packets sent via multicast */
+        u_long  ifi_iqdrops;            /* dropped on input, this interface */
+        u_long  ifi_noproto;            /* destined for unsupported protocol */
+        uint64_t ifi_hwassist;          /* HW offload capabilities, see IFCAP */
+        time_t  ifi_epoch;              /* uptime at attach or stat reset */
+        struct  timeval ifi_lastchange; /* time of last administrative change */
+#ifdef _IFI_OQDROPS
+        u_long  ifi_oqdrops;            /* dropped on output */
+#endif /* _IFI_OQFROPS */
+};
+#endif /* __linux __ */
 
 #define IFA_STAT(s)     (((struct if_data *)ifa->ifa_data)->ifi_ ## s)
 #define RESOLUTION	10
