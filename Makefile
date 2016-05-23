@@ -3,14 +3,16 @@ PREFIX?=/usr/local
 CPPFLAGS=-I$(PREFIX)/include -I./libpidutil
 LDFLAGS=-L$(PREFIX)/lib -L./libpidutil
 LDLIBS=-lpidutil
-CFLAGS=-Wall -Wextra -O2 -pipe -funroll-loops -ffast-math -fno-strict-aliasing -mssse3
+CFLAGS=-Wall -fno-strict-aliasing
 CFLAGS+=$(CPPFLAGS)
 
 .PHONY: libpidutil get-deps
 
 all: get-deps libpidutil ifstatd_
 
-ifstatd_: ifstatd.o
+ifstatd_:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c ifstatd.c -o ifstatd.o
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -g -o ifstatd_ ifstatd.o libpidutil/libpidutil.a
 
 get-deps:
 	git submodule update --init
