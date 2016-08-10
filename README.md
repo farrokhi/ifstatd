@@ -1,11 +1,10 @@
+[![Build Status](https://travis-ci.org/farrokhi/ifstatd.svg)](https://travis-ci.org/farrokhi/ifstatd)
+
 # ifstatd_ plugin
-[![Issues](https://img.shields.io/github/issues/farrokhi/ifstatd.svg)](https://github.com/farrokhi/ifstatd/issues)
-[![Coverity Scan](https://img.shields.io/coverity/scan/6341.svg)](https://scan.coverity.com/projects/farrokhi-ifstatd)
-[![GitHub License](https://img.shields.io/github/license/farrokhi/ifstatd.svg)](https://github.com/farrokhi/ifstatd/blob/master/LICENSE)
 
 Interface statistics plugin for munin with [supersampling](http://guide.munin-monitoring.org/en/latest/plugin/supersampling.html) capability
 
-NOTE: This plugin created for FreeBSD and might not run on other OSes
+NOTE: This program depends on [libpidutil](https://github.com/farrokhi/libpidutil)
 
 ## Installation
 1. Clone this repo and build using `make`
@@ -36,4 +35,8 @@ NOTE: This plugin created for FreeBSD and might not run on other OSes
 	```
 	service munin-node restart
 	```
+
+## Compatibility
+
+This plugin builds on FreeBSD, Darwin and Linux, and is tested on FreeBSD. Your milage may vary. Pleare report if build on other operating systems are broken or does not work as expected.
 
