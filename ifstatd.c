@@ -308,11 +308,31 @@ fetch()
 	return (0);
 }
 
+int 
+suggest()
+{
+	/* print list of interfaces */
+	return(system("/sbin/ifconfig -l | tr ' ' '\n'"));
+}
+
+int
+autoconf()
+{
+	printf("yes\n");
+	return(0);
+}
+
 int
 main(int argc, char *argv[])
 {
+	char *first_arg = NULL;
+
 	if (argv[0] && argv[0][0])
 		program_name = argv[0];
+
+	if (argc > 1) {
+		first_arg = argv[1];
+	}
 
 	/* figure out program name */
 	while (strchr(program_name, '/')) {
@@ -323,12 +343,23 @@ main(int argc, char *argv[])
 	if (strchr(program_name, '_')) {
 		interface = strchr(program_name, '_') + 1;
 	}
+	
+	if (first_arg) {
+		if (!strcmp(first_arg, "autoconf")) {
+			return autoconf();
+		}
+		if (!strcmp(first_arg, "suggest")) {
+			return suggest();
+		}
+	}
+
 	/*
 	 * program should always run with a valid executable name
 	 */
 	if (strlen(interface) < 1) {
 		errx(EX_USAGE, "Please run from symlink");
 	}
+
 	/* resolve paths */
 	char *MUNIN_PLUGSTATE = getenv("MUNIN_PLUGSTATE");
 
@@ -339,9 +370,7 @@ main(int argc, char *argv[])
 	asprintf(&pid_filename, "%s/%s.pid", MUNIN_PLUGSTATE, program_name);
 	asprintf(&cache_filename, "%s/%s.value", MUNIN_PLUGSTATE, program_name);
 
-	if (argc > 1) {
-		char *first_arg = argv[1];
-
+	if (first_arg) {
 		if (!strcmp(first_arg, "config")) {
 			return config(interface);
 		}
