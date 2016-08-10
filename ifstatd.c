@@ -436,7 +436,7 @@ main(int argc, char *argv[])
 
 	/* Default is current directory */
 	if (!MUNIN_PLUGSTATE)
-		MUNIN_PLUGSTATE = ".";
+		MUNIN_PLUGSTATE = strdup("/var/munin/plugin-state/root");
 
 	asprintf(&pid_filename, "%s/%s.pid", MUNIN_PLUGSTATE, program_name);
 	asprintf(&cache_filename, "%s/%s.value", MUNIN_PLUGSTATE, program_name);
