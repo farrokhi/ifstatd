@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# $FreeBSD$
+#
+# Copyright (c) 2015, Babak Farrokhi
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE PROJECT BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# PROVIDE: ifstatd
+# REQUIRE: netif
+# KEYWORD: nojail shutdown
+#
+# Add the following to /etc/rc.conf[.local] to enable this service
+#
+# ifstatd_enable="YES"
+# ifstatd_interfaces="ix0 ix1"
+#
+
+. /etc/rc.subr
+
+
+name=ifstatd
+desc="Run ifstatd plugin daemon for munin agent"
+rcvar=ifstatd_enable
+
+load_rc_config $name
+ifstatd_enable=${ifstatd_enable-"NO"}
+
+start_cmd=${name}_start
+stop_cmd=${name}_stop
+
+ifstatd_start()
+{
+	MUNIN_PLUGSTATE="/var/munin/plugin-state/root/"
+	export MUNIN_PLUGSTATE
+	for p in `find /usr/local/etc/munin/plugins/ -name "ifstatd_*" -type l`; do
+		${p} acquire
+	done
+}
+
+ifstatd_stop()
+{
+	pkill ifstatd_
+}
+
+run_rc_command "$1"
