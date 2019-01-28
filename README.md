@@ -38,5 +38,5 @@ NOTE: This program depends on [libpidutil](https://github.com/farrokhi/libpiduti
 
 ## Compatibility
 
-This plugin builds on FreeBSD, Darwin and Linux, and is tested on FreeBSD. Your milage may vary. Pleare report if build on other operating systems are broken or does not work as expected.
+This plugin builds on FreeBSD, Darwin and Linux, and is tested on FreeBSD. Your milage may vary. Please report if build on other operating systems are broken or does not work as expected.
 
