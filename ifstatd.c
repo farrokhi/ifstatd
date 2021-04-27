@@ -56,7 +56,7 @@
 #include <time.h>
 #include <pidutil.h>
 
-#ifdef __MACH__
+#ifndef  CLOCK_REALTIME
 #include <sys/time.h>
 #define CLOCK_REALTIME 0
 #endif
@@ -122,7 +122,7 @@ char   *pid_filename;
 char   *cache_filename;
 struct pidfh *pfh;
 
-#ifdef __MACH__
+#ifndef CLOCK_REALTIME
 /* clock_gettime is not implemented on OSX */
 int 
 clock_gettime(int clk_id, struct timespec *t)
